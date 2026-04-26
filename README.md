@@ -2,9 +2,8 @@
 
 FastAPI backend for the 8451 / Kroger retail analytics project. Hosted on Azure App Service. Connects to an Azure SQL database containing households, transactions, and products tables.
 
-- **Live API:** https://retail-fastapi-ss-acgxdhamh2dybjeg.eastus2-01.azurewebsites.net
-- **Frontend:** https://wonderful-desert-05af0470f.7.azurestaticapps.net
-- **Frontend repo:** https://github.com/nagarisn/CloudFinalProject_Frontend
+- **Web App:** https://wonderful-desert-05af0470f.7.azurestaticapps.net
+- **Frontend GitHub repo:** https://github.com/nagarisn/CloudFinalProject_Frontend
 
 ## Stack
 - FastAPI + Uvicorn / Gunicorn (Python 3.x)
