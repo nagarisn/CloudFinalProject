@@ -4,6 +4,9 @@ from sqlalchemy import text
 from db import engine
 import os
 import shutil
+import pandas as pd
+
+from ml_models import compute_clv, basket_association, churn_predict
 
 app = FastAPI()
 
@@ -165,3 +168,39 @@ async def upload_data(file: UploadFile = File(...)):
         shutil.copyfileobj(file.file, buffer)
 
     return {"message": f"{file.filename} uploaded successfully"}
+
+# ---------------- ML ENDPOINTS ----------------
+
+def _load_tx_with_products(limit_rows: int = 50000) -> pd.DataFrame:
+    """Load joined transactions+products into a DataFrame for ML."""
+    q = text(f"""
+        SELECT TOP {limit_rows}
+            t.HSHD_NUM, t.BASKET_NUM, t.DATE,
+            t.PRODUCT_NUM, t.SPEND, t.UNITS,
+            p.COMMODITY, p.DEPARTMENT
+        FROM transactions t
+        JOIN products p ON t.PRODUCT_NUM = p.PRODUCT_NUM
+    """)
+    with engine.connect() as conn:
+        return pd.read_sql(q, conn)
+
+
+@app.get("/ml/clv")
+def ml_clv():
+    """Customer Lifetime Value via Linear Regression + Random Forest."""
+    df = _load_tx_with_products()
+    return compute_clv(df)
+
+
+@app.get("/ml/basket")
+def ml_basket():
+    """Basket analysis via association rules (support/confidence/lift)."""
+    df = _load_tx_with_products()
+    return basket_association(df)
+
+
+@app.get("/ml/churn")
+def ml_churn():
+    """Churn prediction via Gradient Boosting + Logistic Regression."""
+    df = _load_tx_with_products()
+    return churn_predict(df)
