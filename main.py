@@ -140,18 +140,18 @@ def basket_analysis():
 @app.get("/churn-summary")
 def churn_summary():
     query = text("""
-        SELECT TOP 20
+        SELECT TOP 50
             t.HSHD_NUM,
             COUNT(DISTINCT t.BASKET_NUM) AS basket_count,
             SUM(t.SPEND) AS total_spend,
             CASE
-                WHEN COUNT(DISTINCT t.BASKET_NUM) < 5 AND SUM(t.SPEND) < 50 THEN 'High Risk'
-                WHEN COUNT(DISTINCT t.BASKET_NUM) < 10 THEN 'Medium Risk'
+                WHEN COUNT(DISTINCT t.BASKET_NUM) < 10 AND SUM(t.SPEND) < 200 THEN 'High Risk'
+                WHEN COUNT(DISTINCT t.BASKET_NUM) < 30 AND SUM(t.SPEND) < 800 THEN 'Medium Risk'
                 ELSE 'Low Risk'
             END AS churn_risk
         FROM transactions t
         GROUP BY t.HSHD_NUM
-        ORDER BY total_spend ASC
+        ORDER BY t.HSHD_NUM
     """)
 
     with engine.connect() as conn:
